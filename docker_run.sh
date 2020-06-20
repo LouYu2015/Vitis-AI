@@ -100,7 +100,8 @@ else
     -v /opt/xilinx/dsa:/opt/xilinx/dsa \
     -v /opt/xilinx/overlaybins:/opt/xilinx/overlaybins \
     -e USER=$user -e UID=$uid -e GID=$gid \
-    -v $HERE:/workspace \
+    -v ~:/workspace/share \
+    -p 5000:5000 \
     -w /workspace \
     -it \
     --rm \
@@ -108,4 +109,3 @@ else
     $IMAGE_NAME \
     bash
 fi
-
