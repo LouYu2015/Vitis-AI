@@ -66,8 +66,7 @@ Required:
   - Serial terminal emulator e.g. [teraterm](http://logmett.com/tera-term-the-latest-version)
   - [XRT 2019.2](https://github.com/Xilinx/XRT/tree/2019.2)
   - [zcu102 dpu platform](https://www.xilinx.com/bin/public/openDownload?filename=zcu102_dpu_2019.2.zip)
-  - [Vitis AI 1.0](https://github.com/Xilinx/Vitis-AI) to run models other than Resnet50, Optional 
-  - [Vitis AI Library 1.0](https://github.com/Xilinx/Vitis-AI/tree/master/Vitis-AI-Library) to configure DPU in Vitis AI Library ZCU102 and ZCU104 pacakge, Optional
+  - [Vitis AI Library](https://github.com/Xilinx/Vitis-AI/tree/master/Vitis-AI-Library) to configure DPU in Vitis AI Library ZCU102 and ZCU104 pacakge, Optional
 
 
 ###### **Note:** The user can also refer the [zcu102 dpu platform](https://github.com/Xilinx/Vitis_Embedded_Platform_Source/tree/master/Xilinx_Official_Platforms/zcu102_dpu), The github page includes all the details, such as how to generage the zcu102 dpu platform, how to create the SD card after compiling the DPU project.
@@ -97,19 +96,18 @@ DPU_TRD 
 │   └── Vitis
 │       ├── dpu
 │       └── sfm
-├── apps       
-│   └── Vitis
-│       ├── models
-│       ├── sample
-│       └── resnet50.tar.gz             # resnet50 application
+├── app       
+│   ├── models
+│   ├── img 
+│   └── resnet50.tar.gz             # resnet50 application
 └── prj 
     └── Vitis
         │        
-        ├── kernel_xml                  # pre-build SD card image                      
+        ├── kernel_xml                                        
         │   ├── dpu
         │   └── sfm 
         ├── Makefile
-        ├── dpu_conf.vh
+        ├── dpu_conf.vh                 # dpu configuration file
         ├── config_file                 # config file
         │   ├── prj_config              # integrate 2DPU 
         │   ├── prj_config_102_3dpu     # integrate 3DPU on zcu102
@@ -153,7 +151,7 @@ To run the pre-built SD card image , follow the instructions on [5.2.3](#523-run
 The following tutorials assume that the $TRD_HOME environment variable is set as given below.
 
 ```
-%export TRD_HOME =<Vitis AI path>/DPU_TRD
+%export TRD_HOME =<Vitis AI path>/DPU-TRD
 ```
 
 ###### **Note:** It is recommended to follow the build steps in sequence.
@@ -169,7 +167,7 @@ The following tutorials assume that the Vitis and XRT environment variable is se
 Open a linux terminal. Set the linux as Bash mode.
 
 ```
-% source <vitis install path>/vitis/2019.2/settings64.sh
+% source <vitis install path>/Vitis/2019.2/settings64.sh
 
 % source opt/xilinx/xrt/setup.sh
 ```
@@ -190,19 +188,19 @@ Generated SD card files are in **$TRD_HOME/prj/Vitis/binary_container_1/sd_card*
 
 #### 5.2.2 Get HWH File 
 
-HWH file is a important file that need by the vai-c tool. The file is been created when compile by the Vitils tool. It works together with vai-c to support model compilation under various DPU configurations.
+HWH file is a important file that need by the vai-c tool. The file has been created when compile by the Vitils tool. It works together with vai-c to support model compilation under various DPU configurations.
 
-the HWH file could be simply get from $TRD_HOME/prj/Vitis/binary_container_1/sd_card
+The HWH file could be simply get from $TRD_HOME/prj/Vitis/binary_container_1/sd_card
 
 The user can also get the HWH file in the following path.
 
-$TRD_HOME/prj/Vitis/binary_container_1/link/vivado/vpl/.local/hw_platform/prj/sources_1/bd/zcu102_dpu/hw_handoff/zcu102_dpu.hwh
+$TRD_HOME/prj/Vitis/binary_container_1/link/vivado/vpl/prj/prj.srcs/sources_1/bd/zcu102_dpu/hw_handoff/zcu102_dpu.hwh
 
 Different Platform will get different name of HWH file.
  
 #### 5.2.3 Run Resnet50 Example 
 
-The TRD project has generated the matching model file in $TRD_HOME/prj/app/Vitis path as the default settings. If the user change the DPU settings. The model need to be created again.
+The TRD project has generated the matching model file in $TRD_HOME/prj/app/ path as the default settings. If the user change the DPU settings. The model need to be created again.
 
 This part is about how to run the Resnet50 example from the source code.
 
@@ -210,26 +208,37 @@ The user must create the SD card. Refer section "Configuring SD Card ext File Sy
 
 Copy the whole files in **$TRD_HOME/prj/Vitis/binary_container_1/sd_card** execpt the rootfs.tar.gz fiel to BOOT partition.
 
-Extract the rootfs.tar.gz the RootFs folder 
+Extract the rootfs.tar.gz in the RootFs folder 
 
-Copy the whole files in **$TRD_HOME/app/Vitis** directory to SD Card.
+Copy the directory **$TRD_HOME/app** to the BOOT partition of the SD Card.
 
-After the linux boot, Run:
+After the linux boot, run:
 
 ```
-% cd $HOME
 
-% cp sd_card/dpu.xclbin /usr/lib
+% cp /mnt/dpu.xclbin /usr/lib
 
-% tar -xvf /mnt/app/Vitis/resnet50.tar.gz
+% tar -xvf /mnt/app/resnet50.tar.gz -C ~
 
-% cp /mnt/app/Vitis/models/resnet50.elf .
+% cp /mnt/app/models/resnet50.elf ~
+
+% cp -r /mnt/app/img ~
+
+% cd ~
 
 % env LD_LIBRARY_PATH=samples/lib samples/bin/resnet50 img/bellpeppe-994958.JPEG
+
+Expect: 
+score[945]  =  0.992235     text: bell pepper,
+score[941]  =  0.00315807   text: acorn squash,
+score[943]  =  0.00191546   text: cucumber, cuke,
+score[939]  =  0.000904801  text: zucchini, courgette,
+score[949]  =  0.00054879   text: strawberry,
+
 ```
 
 
-###### **Note:** If you want to run other network. Please refer to the [Vitis AI Github](https://github.com/Xilinx/Vitis-AI) and [Vitis AI User Guide](http://www.xilinx.com/support/documentation/sw_manuals/vitis_ai/1_0/ug1414-vitis-ai.pdf).
+###### **Note:** The $TRD_HOME/prj/app resenet50 test case can support both Vitis and Vivado flow . If you want to run other network. Please refer to the [Vitis AI Github](https://github.com/Xilinx/Vitis-AI) and [Vitis AI User Guide](http://www.xilinx.com/support/documentation/sw_manuals/vitis_ai/1_0/ug1414-vitis-ai.pdf).
 
 
 ### 5.3 Change the Configuration
@@ -256,7 +265,7 @@ The project will integrate 2 DPU. The user can delete this property, Then the pr
 
 #### 5.3.2 Modify the Parameters
 
-The default setting is B4096 for ZCU102. Read the dpu_conf.vh file to get the details of DPU 
+The default setting is B4096 for ZCU102. Read the dpu_conf.vh file to get the details of DPU. You can get all the configurations form [PG338](https://www.xilinx.com/support/documentation/ip_documentation/dpu/v3_2/pg338-dpu.pdf) 
 
 Modify the $TRD_HOME/prj/Vitis/dpu_conf.vh file to modify the configuration. 
 
@@ -369,7 +378,7 @@ There are two  options of RELU Type, including: RELU_RELU6,RELU_LEAKRELU_RELU6. 
 ```
 
 #### DSP Usage
-High
+Setting High will cost more DSP rescources than LOW.
 ```
 `define DSP48_USAGE_HIGH
 ```
@@ -422,7 +431,7 @@ If the platform doesn't have enough port to connect the port of DPU. The ports c
 
 ### 5.4 Integrate the DPU in customer platform
 
-Refer the UG1360 to create the vitis platform. Modify the **SDX_PLATFORM** to specify the user platform.
+Refer the UG1146 or [Vitis_Embedded_Platform_Source](https://github.com/Xilinx/Vitis_Embedded_Platform_Source) to create the vitis platform. Modify the **SDX_PLATFORM** to specify the user platform.
 
 ```
 % export SDX_PLATFORM=<user platform path>/user_platform.xpfm
@@ -460,7 +469,7 @@ steps:
 
 1.Modify the Makefile file
 ```
---config ${TRD_HOME}/prj/Vitis/config_file/prj_config_102_3dpu
+line13: --config ${TRD_HOME}/prj/Vitis/config_file/prj_config_102_3dpu
 ```
 2.
 ```
@@ -474,14 +483,14 @@ steps:
 
 1.Modify the Makefile file
 ```
---config ${TRD_HOME}/prj/Vitis//config_file/prj_config_104_2dpu
+line13: --config ${TRD_HOME}/prj/Vitis/config_file/prj_config_104_2dpu
 ```
 2.Enable the URAM and modify the RAM USAGE
 
 Need to modify the dpu_conf.vh file
 ```
-line35:`define URAM_ENABLE
-line56:`define RAM_USAGE_HIGH
+line52:`define URAM_ENABLE
+line73:`define RAM_USAGE_HIGH
 ```
 3.
 ```

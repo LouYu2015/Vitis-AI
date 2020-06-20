@@ -13,6 +13,12 @@ The Vitis AI Runtime API features are:
 * C++ and Python implementations
 * Support for multi-threading and multi-process execution
 
+For edge users, click 
+[Quick Start For Edge](#quick-start-for-edge) to get started quickly. 
+
+For cloud users, click 
+[Quick Start For Alveo](#quick-start-for-alveo) to get started quickly.
+
 Vitis AI Runtime directory structure introduction
 --------------------------------------------------
 
@@ -70,8 +76,8 @@ VART
 
 ```
 
-## Quick Start
-### Setting Up the Host For Edge
+## Quick Start For Edge
+### Setting Up the Host
 1. Download the [sdk.sh](https://www.xilinx.com/bin/public/openDownload?filename=sdk.sh)
 
 2. Install the cross-compilation system environment, follow the prompts to install. 
@@ -116,21 +122,6 @@ $bash –x build.sh
 ```	
 If the compilation process does not report any error and the executable file `resnet50` is generated, the host environment is installed correctly.
 
-### Setting Up the Host For Alveo
-
-Assume the docker image has been loaded and up running.
-
-1. Download the [U50_xclbin](https://www.xilinx.com/bin/public/openDownload?filename=U50_xclbin.tar.gz) and install them.
-```
-$tar -xzvf U50_xclbin.tar.gz
-$cd U50_xclbin/6E250M
-$sudo cp dpu.xclbin hbm_address_assignment.txt /usr/lib
-```
-2. Enable environment variable and export the library path.
-```
-$export LD_LIBRARY_PATH=/opt/xilinx/xrt/lib:/usr/lib:/usr/lib/x86_64-linux-gnu:/opt/vitis_ai/conda/envs/vitis-ai-tensorflow/lib/
-```
-
 ### Setting Up the Target
 
 1. Installing a Board Image.
@@ -148,15 +139,15 @@ $export LD_LIBRARY_PATH=/opt/xilinx/xrt/lib:/usr/lib:/usr/lib/x86_64-linux-gnu:/
 	You can now operate on the board using SSH.
 
 2. Installing Vitis AI Runtime Package   
-	* Download [vitis_ai_runtime_library_r1.1](https://www.xilinx.com/bin/public/openDownload?filename=vitis-ai-runtime-1.1.0.tar.gz)  
+	* Download [vitis_ai_runtime_library_r1.1](https://www.xilinx.com/bin/public/openDownload?filename=vitis-ai-runtime-1.1.2.tar.gz)  
 	
 	* Connect to the board with SSH: $ssh root@IP_OF_BOARD. The password is `root`.
 	
 	* Untar the package and copy the following files to the board using scp.
 	```
-	$scp <path_to_untar'd_runtime_library>/unilog/aarch64/libunilog-1.1.0-Linux-build46.deb root@IP_OF_BOARD:~/
-	$scp <path_to_untar'd_runtime_library>/XIR/aarch64/libxir-1.1.0-Linux-build46.deb root@IP_OF_BOARD:~/
-	$scp <path_to_untar'd_runtime_library>/VART/aarch64/libvart-1.1.0-Linux-build46.deb root@IP_OF_BOARD:~/
+	$scp <path_to_untar'd_runtime_library>/unilog/aarch64/libunilog-1.1.0-Linux-build<xx>.deb root@IP_OF_BOARD:~/
+	$scp <path_to_untar'd_runtime_library>/XIR/aarch64/libxir-1.1.0-Linux-build<xx>.deb root@IP_OF_BOARD:~/
+	$scp <path_to_untar'd_runtime_library>/VART/aarch64/libvart-1.1.0-Linux-build<xx>.deb root@IP_OF_BOARD:~/
 	```
 	* Copy the `glog-0.4.0-Linux.tar.gz` from host to board with the following command. 
 	```
@@ -179,20 +170,20 @@ $export LD_LIBRARY_PATH=/opt/xilinx/xrt/lib:/usr/lib:/usr/lib/x86_64-linux-gnu:/
 	#irps5401
 	```	 
 	  
-### Running Vitis AI Examples (For Edge)
+### Running Vitis AI Examples
 
 1. Download the samples from host to the target using scp with the following command.
 	```
-	$scp -r ~/Vitis-AI/VART root@[IP_OF_BOARD]:~/
+	[Host]$scp -r ~/Vitis-AI/VART root@[IP_OF_BOARD]:~/
 	```
 2. Download the [vitis_ai_runtime_r1.1_image_video.tar.gz](https://www.xilinx.com/bin/public/openDownload?filename=vitis_ai_runtime_r1.1_image_video.tar.gz) from host to the target using scp with the following command.
 	```
-	$scp vitis_ai_runtime_r1.1_image_video.tar.gz root@[IP_OF_BOARD]:~/
+	[Host]$scp vitis_ai_runtime_r1.1_image_video.tar.gz root@[IP_OF_BOARD]:~/
 	```
 3. Unzip the `vitis_ai_runtime_r1.1_image_video.tar.gz` package on the target.
 	```
 	#cd ~
-	$tar -xzvf vitis_ai_runtime_r1.1_image_video.tar.gz -C VART
+	#tar -xzvf vitis_ai_runtime_r1.1_image_video.tar.gz -C VART
 	```
 4. Enter the directory of samples in the target board. Take resnet50 as an example.
 	```
@@ -215,7 +206,7 @@ $export LD_LIBRARY_PATH=/opt/xilinx/xrt/lib:/usr/lib:/usr/lib/x86_64-linux-gnu:/
 | :--- | :----------------------- | :----------------------------------------------------------- |
 | 1    | resnet50                 | ./resnet50 model_dir_for_zcu102                              |
 | 2    | resnet50_mt_py           | python3 resnet50.py 1 model_dir_for_zcu102                   |
-| 3    | inception_v1_mt_py       | python3 nception_v1.py 1 model_dir_for_zcu102                |
+| 3    | inception_v1_mt_py       | python3 inception_v1.py 1 model_dir_for_zcu102               |
 | 4    | pose_detection           | ./pose_detection video/pose.mp4 model_dir_for_zcu102         |
 | 5    | video_analysis           | ./video_analysis video/structure.mp4 model_dir_for_zcu102    |
 | 6    | adas_detection           | ./adas_detection video/adas.avi model_dir_for_zcu102         |
@@ -223,19 +214,45 @@ $export LD_LIBRARY_PATH=/opt/xilinx/xrt/lib:/usr/lib:/usr/lib/x86_64-linux-gnu:/
 
 </details>
 
-### Running Vitis AI Examples (For Alveo)
+## Quick Start For Alveo
+### Setting Up the Host
+
+Assume the docker image has been loaded and up running.
+
+1. Download the [U50_xclbin](https://www.xilinx.com/bin/public/openDownload?filename=U50_xclbin-v2.tar.gz) and install them.
+```
+$wget https://www.xilinx.com/bin/public/openDownload?filename=U50_xclbin-v2.tar.gz -O U50_xclbin-v2.tar.gz
+$tar -xzvf U50_xclbin-v2.tar.gz
+$cd U50_xclbin/6E250M
+$sudo cp dpu.xclbin hbm_address_assignment.txt /usr/lib
+```
+2. Enable environment variable and export the library path.
+```
+$export LD_LIBRARY_PATH=/opt/xilinx/xrt/lib:/usr/lib:/usr/lib/x86_64-linux-gnu:/opt/vitis_ai/conda/envs/vitis-ai-tensorflow/lib/
+```
+3. Download [vitis_ai_runtime_library_r1.1](https://www.xilinx.com/bin/public/openDownload?filename=vitis-ai-runtime-1.1.2.tar.gz) , untar the packet and install the VART runtime.
+```
+$wget https://www.xilinx.com/bin/public/openDownload?filename=vitis-ai-runtime-1.1.2.tar.gz -O vitis-ai-runtime-1.1.2.tar.gz
+$tar -xzvf vitis-ai-runtime-1.1.2.tar.gz
+$cd vitis-ai-runtime-1.1.2/VART/X86_64/
+$sudo dpkg –i libvart-1.1.0-Linux-build<xx>.deb
+```
+
+### Running Vitis AI Examples
 1. Download the [vitis_ai_runtime_r1.1_image_video.tar.gz](https://www.xilinx.com/bin/public/openDownload?filename=vitis_ai_runtime_r1.1_image_video.tar.gz) package and unzip it.
 	```
-	$tar -xzvf vitis_ai_runtime_r1.1_image_video.tar.gz -C vitis-ai/VART
+	$cd /workspace
+	$wget https://www.xilinx.com/bin/public/openDownload?filename=vitis_ai_runtime_r1.1_image_video.tar.gz -O vitis_ai_runtime_r1.1_image_video.tar.gz
+	$tar -xzvf vitis_ai_runtime_r1.1_image_video.tar.gz -C VART
 	```
 2. Compile the sample, take resnet50 as example.
 	```
-	$cd /workspace/vitis_ai/VART/samples/resnet50
+	$cd /workspace/VART/samples/resnet50
 	$bash –x build.sh
 	```
 3. Run the example.
 	```
-	#./resnet50 model_dir_for_U50
+	$./resnet50 model_dir_for_U50
 	```
 
 <details>
@@ -245,7 +262,7 @@ $export LD_LIBRARY_PATH=/opt/xilinx/xrt/lib:/usr/lib:/usr/lib/x86_64-linux-gnu:/
 | :--- | :----------------------- | :-------------------------------------------------------- |
 | 1    | resnet50                 | ./resnet50 model_dir_for_U50                              |
 | 2    | resnet50_mt_py           | /usr/bin/python3 resnet50.py 1 model_dir_for_U50          |
-| 3    | inception_v1_mt_py       | /usr/bin/python3 nception_v1.py 1 model_dir_for_U50       |
+| 3    | inception_v1_mt_py       | /usr/bin/python3 inception_v1.py 1 model_dir_for_U50      |
 | 4    | pose_detection           | ./pose_detection video/pose.mp4 model_dir_for_U50         |
 | 5    | video_analysis           | ./video_analysis video/structure.mp4 model_dir_for_U50    |
 | 6    | adas_detection           | ./adas_detection video/adas.avi model_dir_for_U50         |
